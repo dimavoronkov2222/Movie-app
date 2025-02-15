@@ -1,4 +1,5 @@
 package com.dmytro.moviesapp;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,37 +12,51 @@ import org.json.JSONException;
 import java.io.*;
 import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
-    private EditText editTextTitle;
+    private EditText editTextTitle, editTextDescription, editTextDirector, editTextProducer, editTextStudio;
     private Spinner spinnerGenre;
     private ArrayList<String> movieList;
     private ArrayAdapter<String> movieAdapter;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         editTextTitle = findViewById(R.id.editTextTitle);
+        editTextDescription = findViewById(R.id.editTextDescription);
+        editTextDirector = findViewById(R.id.editTextDirector);
+        editTextProducer = findViewById(R.id.editTextProducer);
+        editTextStudio = findViewById(R.id.editTextStudio);
         spinnerGenre = findViewById(R.id.spinnerGenre);
-        Button buttonAdd = findViewById(R.id.buttonAdd);
+        Button buttonAddMovie = findViewById(R.id.buttonAddMovie);
         Button buttonSave = findViewById(R.id.buttonSave);
         Button buttonLoad = findViewById(R.id.buttonLoad);
         ListView listViewMovies = findViewById(R.id.listViewMovies);
-        String[] genres = {"Драма", "Комедия", "Боевик", "Фантастика", "Хоррор"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, genres);
-        spinnerGenre.setAdapter(adapter);
         movieList = new ArrayList<>();
         movieAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, movieList);
         listViewMovies.setAdapter(movieAdapter);
-        buttonAdd.setOnClickListener(view -> {
+        String[] genres = {"Драма", "Комедия", "Боевик", "Фантастика", "Хоррор"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, genres);
+        spinnerGenre.setAdapter(adapter);
+        buttonAddMovie.setOnClickListener(v -> {
             String title = editTextTitle.getText().toString().trim();
-            String selectedGenre = spinnerGenre.getSelectedItem().toString();
-            if (title.isEmpty()) {
-                Toast.makeText(this, "Введите название фильма", Toast.LENGTH_SHORT).show();
+            String description = editTextDescription.getText().toString().trim();
+            String director = editTextDirector.getText().toString().trim();
+            String producer = editTextProducer.getText().toString().trim();
+            String studio = editTextStudio.getText().toString().trim();
+            String genre = spinnerGenre.getSelectedItem().toString();
+            if (title.isEmpty() || description.isEmpty()) {
+                Toast.makeText(this, "Заполните все обязательные поля!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            String movieEntry = title + " (" + selectedGenre + ")";
-            movieList.add(movieEntry);
+            String movieDetails = title + " (" + genre + ")\nОписание: " + description + "\nРежиссер: " + director +
+                    "\nПродюсер: " + producer + "\nСтудия: " + studio;
+            movieList.add(movieDetails);
             movieAdapter.notifyDataSetChanged();
             editTextTitle.setText("");
+            editTextDescription.setText("");
+            editTextDirector.setText("");
+            editTextProducer.setText("");
+            editTextStudio.setText("");
             Toast.makeText(this, "Фильм добавлен!", Toast.LENGTH_SHORT).show();
         });
         listViewMovies.setOnItemClickListener((parent, view, position, id) -> {
