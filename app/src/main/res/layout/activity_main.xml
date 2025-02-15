@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -8,27 +9,32 @@
         android:id="@+id/editTextTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Название фильма" />
+        android:hint="Назва фільму"
+        tools:ignore="HardcodedText" />
     <EditText
         android:id="@+id/editTextDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Описание фильма" />
+        android:hint="Опис фільму"
+        tools:ignore="HardcodedText" />
     <EditText
         android:id="@+id/editTextDirector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Режиссер" />
+        android:hint="Режисер"
+        tools:ignore="HardcodedText" />
     <EditText
         android:id="@+id/editTextProducer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Продюсер" />
+        android:hint="Продюсер"
+        tools:ignore="HardcodedText" />
     <EditText
         android:id="@+id/editTextStudio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Студия" />
+        android:hint="Студія"
+        tools:ignore="HardcodedText" />
     <Spinner
         android:id="@+id/spinnerGenre"
         android:layout_width="match_parent"
@@ -37,20 +43,10 @@
         android:id="@+id/buttonAddMovie"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Добавить фильм" />
-    <Button
-        android:id="@+id/buttonSave"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Сохранить в JSON" />
-    <Button
-        android:id="@+id/buttonLoad"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Загрузить из JSON" />
+        android:text="Додати фільм"
+        tools:ignore="HardcodedText" />
     <ListView
         android:id="@+id/listViewMovies"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"/>
+        android:layout_height="wrap_content" />
 </LinearLayout>
