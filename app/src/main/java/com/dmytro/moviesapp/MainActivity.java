@@ -1,5 +1,7 @@
 package com.dmytro.moviesapp;
-import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,54 +13,67 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private ArrayAdapter<String> movieAdapter;
     private ArrayList<String> movieList;
-    @SuppressLint("MissingInflatedId")
+    private ArrayList<Integer> movieIds;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        databaseHelper = new DatabaseHelper(this);
         editTextTitle = findViewById(R.id.editTextTitle);
         editTextDescription = findViewById(R.id.editTextDescription);
         editTextDirector = findViewById(R.id.editTextDirector);
         editTextProducer = findViewById(R.id.editTextProducer);
         editTextStudio = findViewById(R.id.editTextStudio);
         spinnerGenre = findViewById(R.id.spinnerGenre);
-        Button buttonAddMovie = findViewById(R.id.buttonAddMovie);
         listViewMovies = findViewById(R.id.listViewMovies);
-        String[] genres = {"Драма", "Комедія", "Бойовик", "Фантастика", "Хоррор"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, genres);
-        spinnerGenre.setAdapter(adapter);
-        loadMoviesFromDB();
-        buttonAddMovie.setOnClickListener(v -> {
-            String title = editTextTitle.getText().toString().trim();
-            String description = editTextDescription.getText().toString().trim();
-            String director = editTextDirector.getText().toString().trim();
-            String producer = editTextProducer.getText().toString().trim();
-            String studio = editTextStudio.getText().toString().trim();
-            String genre = spinnerGenre.getSelectedItem().toString();
-            if (title.isEmpty() || description.isEmpty()) {
-                Toast.makeText(this, "Заповніть всі обов'язкові поля!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            boolean inserted = databaseHelper.addMovie(title, description, genre, director, producer, studio);
-            if (inserted) {
-                Toast.makeText(this, "Фільм додано!", Toast.LENGTH_SHORT).show();
-                loadMoviesFromDB();
-            } else {
-                Toast.makeText(this, "Помилка додавання!", Toast.LENGTH_SHORT).show();
-            }
-        });
-        listViewMovies.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedMovie = movieList.get(position);
-            String title = selectedMovie.split(" \\(")[0];
-            databaseHelper.deleteMovie(title);
-            Toast.makeText(this, "Фільм видалено!", Toast.LENGTH_SHORT).show();
-            loadMoviesFromDB();
-        });
-    }
-    private void loadMoviesFromDB() {
-        movieList = databaseHelper.getAllMovies();
+        Button buttonAdd = findViewById(R.id.buttonAdd);
+        databaseHelper = new DatabaseHelper(this);
+        movieList = new ArrayList<>();
+        movieIds = new ArrayList<>();
         movieAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, movieList);
         listViewMovies.setAdapter(movieAdapter);
+        String[] genres = {"Драма", "Комедія", "Бойовик", "Фантастика", "Хорор"};
+        ArrayAdapter<String> genreAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, genres);
+        spinnerGenre.setAdapter(genreAdapter);
+        buttonAdd.setOnClickListener(v -> addMovie());
+        listViewMovies.setOnItemClickListener((parent, view, position, id) -> openMovieDetails(movieIds.get(position)));
+        loadMovies();
+    }
+    private void addMovie() {
+        String title = editTextTitle.getText().toString().trim();
+        String description = editTextDescription.getText().toString().trim();
+        String genre = spinnerGenre.getSelectedItem().toString();
+        String director = editTextDirector.getText().toString().trim();
+        String producer = editTextProducer.getText().toString().trim();
+        String studio = editTextStudio.getText().toString().trim();
+        if (title.isEmpty()) {
+            Toast.makeText(this, "Введіть назву фільму", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        databaseHelper.addMovie(title, description, genre, director, producer, studio);
+        loadMovies();
+        editTextTitle.setText("");
+        editTextDescription.setText("");
+        editTextDirector.setText("");
+        editTextProducer.setText("");
+        editTextStudio.setText("");
+    }
+    private void loadMovies() {
+        movieList.clear();
+        movieIds.clear();
+
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id, title, genre FROM movies", null);
+        while (cursor.moveToNext()) {
+            movieIds.add(cursor.getInt(0));
+            movieList.add(cursor.getString(1) + " (" + cursor.getString(2) + ")");
+        }
+        cursor.close();
+        db.close();
+        movieAdapter.notifyDataSetChanged();
+    }
+    private void openMovieDetails(int movieId) {
+        Intent intent = new Intent(this, MovieDetailsActivity.class);
+        intent.putExtra("MOVIE_ID", movieId);
+        startActivity(intent);
     }
 }
