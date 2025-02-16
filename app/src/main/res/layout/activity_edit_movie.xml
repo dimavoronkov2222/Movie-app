@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Назва фільму" />
+    <EditText
+        android:id="@+id/editTextDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Опис фільму" />
+    <Spinner
+        android:id="@+id/spinnerGenre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/editTextDirector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Режисер" />
+    <EditText
+        android:id="@+id/editTextProducer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Продюсер" />
+    <EditText
+        android:id="@+id/editTextStudio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Студія" />
+    <Button
+        android:id="@+id/buttonSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Зберегти зміни" />
+</LinearLayout>

@@ -38,4 +38,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert("movies", null, values);
         db.close();
     }
+    public void updateMovie(int id, String title, String description, String genre, String director, String producer, String studio) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("title", title);
+        values.put("description", description);
+        values.put("genre", genre);
+        values.put("director", director);
+        values.put("producer", producer);
+        values.put("studio", studio);
+        db.update("movies", values, "id = ?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+    public void deleteMovie(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("movies", "id = ?", new String[]{String.valueOf(id)});
+        db.close();
+    }
 }

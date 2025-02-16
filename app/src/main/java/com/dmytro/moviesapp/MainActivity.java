@@ -9,7 +9,6 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private EditText editTextTitle, editTextDescription, editTextDirector, editTextProducer, editTextStudio;
     private Spinner spinnerGenre;
-    private ListView listViewMovies;
     private DatabaseHelper databaseHelper;
     private ArrayAdapter<String> movieAdapter;
     private ArrayList<String> movieList;
@@ -24,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         editTextProducer = findViewById(R.id.editTextProducer);
         editTextStudio = findViewById(R.id.editTextStudio);
         spinnerGenre = findViewById(R.id.spinnerGenre);
-        listViewMovies = findViewById(R.id.listViewMovies);
+        ListView listViewMovies = findViewById(R.id.listViewMovies);
         Button buttonAdd = findViewById(R.id.buttonAdd);
         databaseHelper = new DatabaseHelper(this);
         movieList = new ArrayList<>();
@@ -37,6 +36,12 @@ public class MainActivity extends AppCompatActivity {
         buttonAdd.setOnClickListener(v -> addMovie());
         listViewMovies.setOnItemClickListener((parent, view, position, id) -> openMovieDetails(movieIds.get(position)));
         loadMovies();
+        listViewMovies.setOnItemLongClickListener((parent, view, position, id) -> {
+            int movieIdToDelete = movieIds.get(position);
+            databaseHelper.deleteMovie(movieIdToDelete);
+            loadMovies();
+            return true;
+        });
     }
     private void addMovie() {
         String title = editTextTitle.getText().toString().trim();
