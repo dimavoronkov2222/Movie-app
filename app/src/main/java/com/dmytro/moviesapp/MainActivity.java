@@ -30,18 +30,16 @@ public class MainActivity extends AppCompatActivity {
         movieIds = new ArrayList<>();
         movieAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, movieList);
         listViewMovies.setAdapter(movieAdapter);
-        String[] genres = {"Драма", "Комедія", "Бойовик", "Фантастика", "Хорор"};
-        ArrayAdapter<String> genreAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, genres);
-        spinnerGenre.setAdapter(genreAdapter);
+        loadGenresIntoSpinner();
         buttonAdd.setOnClickListener(v -> addMovie());
         listViewMovies.setOnItemClickListener((parent, view, position, id) -> openMovieDetails(movieIds.get(position)));
-        loadMovies();
         listViewMovies.setOnItemLongClickListener((parent, view, position, id) -> {
             int movieIdToDelete = movieIds.get(position);
             databaseHelper.deleteMovie(movieIdToDelete);
             loadMovies();
             return true;
         });
+        loadMovies();
     }
     private void addMovie() {
         String title = editTextTitle.getText().toString().trim();
@@ -54,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Введіть назву фільму", Toast.LENGTH_SHORT).show();
             return;
         }
-        databaseHelper.addMovie(title, description, genre, director, producer, studio);
+        int genreId = getGenreId(genre);
+        databaseHelper.addMovie(title, description, genreId, director, producer, studio);
         loadMovies();
         editTextTitle.setText("");
         editTextDescription.setText("");
@@ -65,9 +64,8 @@ public class MainActivity extends AppCompatActivity {
     private void loadMovies() {
         movieList.clear();
         movieIds.clear();
-
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id, title, genre FROM movies", null);
+        Cursor cursor = db.rawQuery("SELECT id, title, categories.name AS genre FROM movies INNER JOIN categories ON movies.genre_id = categories.id", null);
         while (cursor.moveToNext()) {
             movieIds.add(cursor.getInt(0));
             movieList.add(cursor.getString(1) + " (" + cursor.getString(2) + ")");
@@ -80,5 +78,28 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MovieDetailsActivity.class);
         intent.putExtra("MOVIE_ID", movieId);
         startActivity(intent);
+    }
+    private int getGenreId(String genreName) {
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id FROM categories WHERE name = ?", new String[]{genreName});
+        int genreId = -1;
+        if (cursor != null && cursor.moveToFirst()) {
+            genreId = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return genreId;
+    }
+    private void loadGenresIntoSpinner() {
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT name FROM categories", null);
+        ArrayList<String> genres = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            genres.add(cursor.getString(0));
+        }
+        cursor.close();
+        db.close();
+        ArrayAdapter<String> genreAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, genres);
+        spinnerGenre.setAdapter(genreAdapter);
     }
 }

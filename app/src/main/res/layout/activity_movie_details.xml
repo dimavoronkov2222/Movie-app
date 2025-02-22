@@ -9,35 +9,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="22sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
     <TextView
         android:id="@+id/textDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
     <TextView
         android:id="@+id/textGenre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
     <TextView
         android:id="@+id/textDirector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
     <TextView
         android:id="@+id/textProducer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
     <TextView
         android:id="@+id/textStudio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
 </LinearLayout>
