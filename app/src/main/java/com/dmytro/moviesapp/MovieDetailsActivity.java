@@ -1,13 +1,15 @@
 package com.dmytro.moviesapp;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import com.dmytro.moviesapp.database.AppDatabase;
+import com.dmytro.moviesapp.odt.Movie;
+
 public class MovieDetailsActivity extends AppCompatActivity {
     private TextView textTitle, textDescription, textGenre, textDirector, textProducer, textStudio;
-    private DatabaseHelper databaseHelper;
-    private int movieId;
+    private AppDatabase database;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,24 +20,29 @@ public class MovieDetailsActivity extends AppCompatActivity {
         textDirector = findViewById(R.id.textDirector);
         textProducer = findViewById(R.id.textProducer);
         textStudio = findViewById(R.id.textStudio);
-        databaseHelper = new DatabaseHelper(this);
-        movieId = getIntent().getIntExtra("MOVIE_ID", -1);
+        database = AppDatabase.getInstance(this);
+        int movieId = getIntent().getIntExtra("MOVIE_ID", -1);
         if (movieId != -1) {
-            loadMovieDetails();
+            new LoadMovieTask().execute(movieId);
         }
     }
-    private void loadMovieDetails() {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM movies WHERE id = ?", new String[]{String.valueOf(movieId)});
-        if (cursor.moveToFirst()) {
-            textTitle.setText(cursor.getString(1));
-            textDescription.setText(cursor.getString(2));
-            textGenre.setText("Жанр: " + cursor.getString(3));
-            textDirector.setText("Режисер: " + cursor.getString(4));
-            textProducer.setText("Продюсер: " + cursor.getString(5));
-            textStudio.setText("Студія: " + cursor.getString(6));
+    @SuppressLint("StaticFieldLeak")
+    private class LoadMovieTask extends AsyncTask<Integer, Void, Movie> {
+        @Override
+        protected Movie doInBackground(Integer... params) {
+            return database.movieDao().getMovieById(params[0]);
         }
-        cursor.close();
-        db.close();
+        @SuppressLint("SetTextI18n")
+        @Override
+        protected void onPostExecute(Movie movie) {
+            if (movie != null) {
+                textTitle.setText(movie.getTitle());
+                textDescription.setText(movie.getDescription());
+                textGenre.setText("Жанр: " + movie.getGenre());
+                textDirector.setText("Режисер: " + movie.getDirector());
+                textProducer.setText("Продюсер: " + movie.getProducer());
+                textStudio.setText("Студія: " + movie.getStudio());
+            }
+        }
     }
 }

@@ -10,12 +10,14 @@
         android:id="@+id/editTextTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Назва фільму" />
+        android:hint="Назва фільму"
+        tools:ignore="Autofill,HardcodedText,TextFields" />
     <EditText
         android:id="@+id/editTextDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Опис фільму" />
+        android:hint="Опис фільму"
+        tools:ignore="Autofill,HardcodedText,TextFields" />
     <Spinner
         android:id="@+id/spinnerGenre"
         android:layout_width="match_parent"
@@ -24,22 +26,26 @@
         android:id="@+id/editTextDirector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Режисер" />
+        android:hint="Режисер"
+        tools:ignore="Autofill,HardcodedText,TextFields" />
     <EditText
         android:id="@+id/editTextProducer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Продюсер" />
+        android:hint="Продюсер"
+        tools:ignore="Autofill,HardcodedText,TextFields" />
     <EditText
         android:id="@+id/editTextStudio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Студія" />
+        android:hint="Студія"
+        tools:ignore="Autofill,HardcodedText,TextFields" />
     <Button
         android:id="@+id/buttonAdd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Додати фільм" />
+        android:text="Додати фільм"
+        tools:ignore="HardcodedText" />
     <ListView
         android:id="@+id/listViewMovies"
         android:layout_width="match_parent"

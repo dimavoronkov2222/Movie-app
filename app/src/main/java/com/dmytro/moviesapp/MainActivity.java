@@ -1,15 +1,17 @@
 package com.dmytro.moviesapp;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+import com.dmytro.moviesapp.database.AppDatabase;
+import com.dmytro.moviesapp.dao.MovieDao;
+import com.dmytro.moviesapp.odt.Category;
+import com.dmytro.moviesapp.odt.Movie;
 import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private EditText editTextTitle, editTextDescription, editTextDirector, editTextProducer, editTextStudio;
     private Spinner spinnerGenre;
-    private DatabaseHelper databaseHelper;
+    private MovieDao movieDao;
     private ArrayAdapter<String> movieAdapter;
     private ArrayList<String> movieList;
     private ArrayList<Integer> movieIds;
@@ -25,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
         spinnerGenre = findViewById(R.id.spinnerGenre);
         ListView listViewMovies = findViewById(R.id.listViewMovies);
         Button buttonAdd = findViewById(R.id.buttonAdd);
-        databaseHelper = new DatabaseHelper(this);
+        AppDatabase database = AppDatabase.getInstance(this);
+        movieDao = database.movieDao();
         movieList = new ArrayList<>();
         movieIds = new ArrayList<>();
         movieAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, movieList);
@@ -35,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         listViewMovies.setOnItemClickListener((parent, view, position, id) -> openMovieDetails(movieIds.get(position)));
         listViewMovies.setOnItemLongClickListener((parent, view, position, id) -> {
             int movieIdToDelete = movieIds.get(position);
-            databaseHelper.deleteMovie(movieIdToDelete);
+            deleteMovie(movieIdToDelete);
             loadMovies();
             return true;
         });
@@ -53,26 +56,21 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         int genreId = getGenreId(genre);
-        databaseHelper.addMovie(title, description, genreId, director, producer, studio);
+        Movie movie = new Movie(title, description, genreId, director, producer, studio);
+        movieDao.insert(movie);
         loadMovies();
-        editTextTitle.setText("");
-        editTextDescription.setText("");
-        editTextDirector.setText("");
-        editTextProducer.setText("");
-        editTextStudio.setText("");
+        clearInputs();
     }
     private void loadMovies() {
         movieList.clear();
         movieIds.clear();
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id, title, categories.name AS genre FROM movies INNER JOIN categories ON movies.genre_id = categories.id", null);
-        while (cursor.moveToNext()) {
-            movieIds.add(cursor.getInt(0));
-            movieList.add(cursor.getString(1) + " (" + cursor.getString(2) + ")");
-        }
-        cursor.close();
-        db.close();
-        movieAdapter.notifyDataSetChanged();
+        movieDao.getAllMovies().observe(this, movies -> {
+            for (Movie movie : movies) {
+                movieIds.add(movie.getId());
+                movieList.add(movie.getTitle() + " (" + movie.getGenreName() + ")");
+            }
+            movieAdapter.notifyDataSetChanged();
+        });
     }
     private void openMovieDetails(int movieId) {
         Intent intent = new Intent(this, MovieDetailsActivity.class);
@@ -80,26 +78,23 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
     private int getGenreId(String genreName) {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT id FROM categories WHERE name = ?", new String[]{genreName});
-        int genreId = -1;
-        if (cursor != null && cursor.moveToFirst()) {
-            genreId = cursor.getInt(0);
-        }
-        cursor.close();
-        db.close();
-        return genreId;
+        return spinnerGenre.getSelectedItemPosition();
     }
     private void loadGenresIntoSpinner() {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT name FROM categories", null);
-        ArrayList<String> genres = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            genres.add(cursor.getString(0));
-        }
-        cursor.close();
-        db.close();
-        ArrayAdapter<String> genreAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, genres);
+        AppDatabase database = AppDatabase.getInstance(this);
+        ArrayAdapter<Category> genreAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, database.categoryDao().getAllCategories());
         spinnerGenre.setAdapter(genreAdapter);
+    }
+    private void deleteMovie(int movieId) {
+        Movie movie = new Movie();
+        movie.setId(movieId);
+        movieDao.delete(movie);
+    }
+    private void clearInputs() {
+        editTextTitle.setText("");
+        editTextDescription.setText("");
+        editTextDirector.setText("");
+        editTextProducer.setText("");
+        editTextStudio.setText("");
     }
 }

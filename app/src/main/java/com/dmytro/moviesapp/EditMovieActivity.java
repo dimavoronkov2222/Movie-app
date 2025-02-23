@@ -1,13 +1,14 @@
 package com.dmytro.moviesapp;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+import com.dmytro.moviesapp.database.AppDatabase;
+import com.dmytro.moviesapp.dao.MovieDao;
+import com.dmytro.moviesapp.odt.Movie;
 public class EditMovieActivity extends AppCompatActivity {
     private EditText editTextTitle, editTextDescription, editTextDirector, editTextProducer, editTextStudio;
     private Spinner spinnerGenre;
-    private DatabaseHelper databaseHelper;
+    private MovieDao movieDao;
     private int movieId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +21,8 @@ public class EditMovieActivity extends AppCompatActivity {
         editTextStudio = findViewById(R.id.editTextStudio);
         spinnerGenre = findViewById(R.id.spinnerGenre);
         Button buttonSave = findViewById(R.id.buttonSave);
-        databaseHelper = new DatabaseHelper(this);
+        AppDatabase database = AppDatabase.getInstance(this);
+        movieDao = database.movieDao();
         movieId = getIntent().getIntExtra("MOVIE_ID", -1);
         if (movieId != -1) {
             loadMovieDetails();
@@ -28,18 +30,15 @@ public class EditMovieActivity extends AppCompatActivity {
         buttonSave.setOnClickListener(v -> saveMovie());
     }
     private void loadMovieDetails() {
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM movies WHERE id = ?", new String[]{String.valueOf(movieId)});
-        if (cursor.moveToFirst()) {
-            editTextTitle.setText(cursor.getString(1));
-            editTextDescription.setText(cursor.getString(2));
-            spinnerGenre.setSelection(((ArrayAdapter) spinnerGenre.getAdapter()).getPosition(cursor.getString(3)));
-            editTextDirector.setText(cursor.getString(4));
-            editTextProducer.setText(cursor.getString(5));
-            editTextStudio.setText(cursor.getString(6));
+        Movie movie = movieDao.getMovieById(movieId);
+        if (movie != null) {
+            editTextTitle.setText(movie.getTitle());
+            editTextDescription.setText(movie.getDescription());
+            spinnerGenre.setSelection(movie.getGenreId());
+            editTextDirector.setText(movie.getDirector());
+            editTextProducer.setText(movie.getProducer());
+            editTextStudio.setText(movie.getStudio());
         }
-        cursor.close();
-        db.close();
     }
     private void saveMovie() {
         String title = editTextTitle.getText().toString().trim();
@@ -48,7 +47,8 @@ public class EditMovieActivity extends AppCompatActivity {
         String director = editTextDirector.getText().toString().trim();
         String producer = editTextProducer.getText().toString().trim();
         String studio = editTextStudio.getText().toString().trim();
-        databaseHelper.updateMovie(movieId, title, description, genre, director, producer, studio);
+        Movie movie = new Movie(title, description, Integer.parseInt(genre), director, producer, studio);
+        movieDao.update(movie);
         finish();
     }
 }
