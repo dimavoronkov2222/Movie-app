@@ -1,5 +1,9 @@
 package com.dmytro.moviesapp.dao;
-import androidx.room.*;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.Query;
+import androidx.room.Update;
 import com.dmytro.moviesapp.odt.Category;
 import java.util.List;
 @Dao
